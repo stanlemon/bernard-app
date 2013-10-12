@@ -16,6 +16,7 @@ use Bernard\Producer;
 use Bernard\QueueFactory\PersistentFactory;
 use Bernard\Router\SimpleRouter;
 use Bernard\Serializer\SimpleSerializer;
+use Bernard\Serializer\SymfonySerializer;
 use Bernard\Driver\DoctrineDriver;
 use Doctrine\DBAL\DriverManager;
 
@@ -26,32 +27,32 @@ class ConsumeCommand extends ContainerAwareCommand
         $this
             ->setName('bernard:consume')
             ->setDescription('Bernard queue consumer')
+            ->addArgument('queue', InputArgument::OPTIONAL, 'Name of queue that will be consumed.')
         ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $connection = $this->getContainer()->get('doctrine.dbal.default_connection');
+        if ($input->getArgument('queue')) {
+            $consumer = $this->getContainer()->get('bernard.consumer');
 
-        $driver = new DoctrineDriver($connection);
+            $queues = $this->getContainer()->get('bernard.queue_factory');
 
-        $queues = new PersistentFactory($driver, new SimpleSerializer);
+            $consumer->consume($queues->create($input->getArgument('queue')));
+        } else {
+            $kernel = $this->getContainer()->get('kernel');
 
-        $middleware = new Middleware\MiddlewareBuilder;
-        $middleware->push(new Middleware\ErrorLogFactory);
-        $middleware->push(new Middleware\FailuresFactory(
-            new PersistentFactory($driver, new SimpleSerializer)
-        ));
+            $queues = $this->getContainer()->get('bernard.queue_factory');
 
-        $consumer = new Consumer(
-            new SimpleRouter(array(
-                'ExecuteCommand' => new CommandMessageHandler($this->getApplication()),
-            )),
-            $middleware
-        );
-
-        $consumer->consume(
-            $queues->create('execute-command')
-        );
+            foreach ($queues->all() as $name => $queue) {
+                $command = 'nohup php '. $kernel->getRootDir() .'/console ' . $this->getName() .
+                    ' --env='. $kernel->getEnvironment() .' ' . 
+                    $name . 
+                    ' > /dev/null 2>&1 &';
+                    
+                $process = new \Symfony\Component\Process\Process($command);
+                $process->run();
+            }
+        }
     }
 }

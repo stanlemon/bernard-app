@@ -1,0 +1,53 @@
+services:
+    
+    bernard.lemon.command_message_handler:
+        class: Lemon\BernardBundle\Message\CommandMessageHandler
+        calls:
+            - [ setKernel, ["@kernel"] ]
+            - [ setLogger, ["@logger"] ]
+        tags:
+            - { name: bernard.receiver }
+
+    bernard.lemon.echo_message_handler:
+        class: Lemon\BernardBundle\Message\EchoMessageHandler
+        tags:
+            - { name: bernard.receiver }
+
+    bernard.consumer:
+        class: Bernard\Consumer
+        arguments: [@bernard.router, @bernard.consumer_middleware]
+
+    bernard.producer:
+        class: Bernard\Producer
+        arguments: [@bernard.queue_factory, @bernard.producer_middleware]
+
+    bernard.queue_factory:
+        class: Bernard\QueueFactory\PersistentFactory
+        arguments: [@bernard.driver, @bernard.serializer]
+
+    bernard.router:
+        class: Bernard\Router\SimpleRouter
+
+    bernard.driver:
+        class: Bernard\Driver\DoctrineDriver
+        arguments: [@doctrine.dbal.default_connection]
+
+    bernard.serializer:
+        class: Bernard\Serializer\SimpleSerializer
+#        arguments: [@bernard.symfony_serializer]
+
+    bernard.consumer_middleware:
+        class: Bernard\Middleware\MiddlewareBuilder
+
+    bernard.producer_middleware:
+        class: Bernard\Middleware\MiddlewareBuilder
+
+    bernard.symfony_serializer:
+        class: Symfony\Component\Serializer\Serializer
+        arguments:
+            - [@bernard.symfony_serializer.envelope.normalizer]
+            - { json: @bernard.symfony_serializer.encoder.json }
+    bernard.symfony_serializer.envelope.normalizer:
+        class: Bernard\Symfony\EnvelopeNormalizer
+    bernard.symfony_serializer.encoder.json:
+        class: Symfony\Component\Serializer\Encoder\JsonEncoder

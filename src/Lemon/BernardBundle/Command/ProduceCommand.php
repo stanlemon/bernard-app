@@ -9,6 +9,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 use Bernard\Consumer;
 use Bernard\Message;
+use Bernard\Message\DefaultMessage;
 use Bernard\Middleware;
 use Bernard\Producer;
 use Bernard\QueueFactory\PersistentFactory;
@@ -21,29 +22,28 @@ class ProduceCommand extends ContainerAwareCommand
 {
     protected function configure()
     {
-        $this->ignoreValidationErrors();
-
         $this
             ->setName('bernard:produce')
             ->setDescription('Bernard queue producer')
+            ->addArgument('name', InputArgument::REQUIRED, 'Name for the message eg. "ImportUsers".')
+            ->addArgument('message', InputArgument::OPTIONAL, 'JSON encoded string that is used for message properties.')
         ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    /**
+     * {@inheritDoc}
+     */
+    public function execute(InputInterface $input, OutputInterface $output)
     {
-        $connection = $this->getContainer()->get('doctrine.dbal.default_connection');
+        $name = $input->getArgument('name');
+        $message = json_decode($input->getArgument('message'), true) ?: array();
 
-        $driver = new DoctrineDriver($connection);
+        if (json_last_error()) {
+            throw new \RuntimeException('Could not decode invalid JSON [' . json_last_error() . ']');
+        }
 
-        $producer = new Producer(
-            new PersistentFactory($driver, new SimpleSerializer), 
-            new Middleware\MiddlewareBuilder
-        );
+        $producer = $this->getContainer()->get('bernard.producer');
 
-        $argv = array_slice($_SERVER['argv'], 0, 1) + array_slice($_SERVER['argv'], 1);
-
-        $producer->produce(new Message\DefaultMessage('ExecuteCommand', array(
-            "command" => $argv,
-        )));
+        $producer->produce(new DefaultMessage($name, $message));
     }
 }
