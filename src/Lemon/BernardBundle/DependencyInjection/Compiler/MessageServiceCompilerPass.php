@@ -5,14 +5,10 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\Reference;
 
-class MessageCompilerPass implements CompilerPassInterface
+class MessageServiceCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container)
     {
-        if (!$container->hasDefinition('bernard.consumer')) {
-            return;
-        }
-
         $definition = $container->getDefinition(
             'bernard.router'
         );

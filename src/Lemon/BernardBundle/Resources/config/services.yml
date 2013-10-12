@@ -1,5 +1,5 @@
 services:
-    
+
     bernard.lemon.command_message_handler:
         class: Lemon\BernardBundle\Message\CommandMessageHandler
         calls:
@@ -29,12 +29,11 @@ services:
         class: Bernard\Router\SimpleRouter
 
     bernard.driver:
+        alias: bernard.doctrine_driver
+
+    bernard.doctrine_driver:
         class: Bernard\Driver\DoctrineDriver
         arguments: [@doctrine.dbal.default_connection]
-
-    bernard.serializer:
-        class: Bernard\Serializer\SimpleSerializer
-#        arguments: [@bernard.symfony_serializer]
 
     bernard.consumer_middleware:
         class: Bernard\Middleware\MiddlewareBuilder
@@ -42,11 +41,19 @@ services:
     bernard.producer_middleware:
         class: Bernard\Middleware\MiddlewareBuilder
 
+    bernard.simple_serializer:
+        class: Bernard\Serializer\SimpleSerializer
+
     bernard.symfony_serializer:
+        class: Bernard\Serializer\SymfonySerializer
+        arguments: [@bernard.symfony_serializer_serializer]
+    bernard.symfony_serializer_serializer:
         class: Symfony\Component\Serializer\Serializer
         arguments:
-            - [@bernard.symfony_serializer.envelope.normalizer]
+            - [ @bernard.symfony_serializer.default_message.normalizer , @bernard.symfony_serializer.envelope.normalizer ]
             - { json: @bernard.symfony_serializer.encoder.json }
+    bernard.symfony_serializer.default_message.normalizer:
+        class: Bernard\Symfony\DefaultMessageNormalizer
     bernard.symfony_serializer.envelope.normalizer:
         class: Bernard\Symfony\EnvelopeNormalizer
     bernard.symfony_serializer.encoder.json:
