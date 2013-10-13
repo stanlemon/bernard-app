@@ -42,7 +42,7 @@ class LemonBernardExtension extends Extension
             case 'ironmq':
             case 'appengine':
             default:
-                throw new \RuntimeException("The JMS serializer has not yet been implemented");
+                throw new \RuntimeException(sprintf("The %s driver is not yet implemented", $config['driver']));
         }
 
 
