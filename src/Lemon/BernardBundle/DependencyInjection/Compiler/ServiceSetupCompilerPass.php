@@ -9,37 +9,12 @@ class ServiceSetupCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container)
     {
-        $config = $container->getParameter('lemon_bernard.config');
-
-        switch ($config['driver']) {
-            case 'dbal':
-                $connectionName = sprintf("doctrine.dbal.%s_connection", $config['dbal']);
-                
-                if (!$container->hasDefinition($connectionName)) {
-                    throw new \RuntimeException(sprintf("DBAL connection %s does not exist", $config['dbal']));
-                }
-
-                $container->getDefinition('bernard.doctrine_driver')
-                    ->setArguments(array(new Reference($connectionName)));
-
-                break;
-            default:
-                throw new \RuntimeException("The JMS serializer has not yet been implemented");
+        $definition = $container->getDefinition('bernard.doctrine_driver');
+        $arguments = $definition->getArguments();
+        $connection = current($arguments);
+        
+        if (!$connection instanceof Reference || !$container->hasDefinition((string) $connection)) {
+            throw new \RuntimeException(sprintf("DBAL connection %s does not exist", $config['dbal']));
         }
-
-        switch ($config['serializer']) {
-            case 'simple':
-                $serializer = 'bernard.simple_serializer';
-                break;
-            case 'jms':
-                throw new \RuntimeException("The JMS serializer has not yet been implemented");
-            case 'symfony':
-                $serializer = 'bernard.symfony_serializer';
-                break;
-            default:
-                throw new \RuntimeException("Invalid serializer specified");
-        }
-
-        $container->setAlias('bernard.serializer', $serializer);
     }
 }
