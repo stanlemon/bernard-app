@@ -6,6 +6,7 @@ use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader;
 use Symfony\Component\DependencyInjection\Reference;
+use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 
 /**
@@ -35,11 +36,22 @@ class LemonBernardExtension extends Extension
                 $container->getDefinition('bernard.doctrine_driver')
                     ->setArguments(array(new Reference($connectionName)));
 
+                $container->setAlias('bernard.driver', 'bernard.doctrine_driver');
                 break;
             case 'sqs':
             case 'redis':
             case 'predis':
             case 'ironmq':
+                $ironmq = new Definition('IronMQ');
+                $ironmq->setArguments(array(array(
+                    'token'      => $config['ironmq']['token'],
+                    'project_id' => $config['ironmq']['project_id'],
+                )));
+
+                $container->setDefinition('bernard.ironmq', $ironmq);
+
+                $container->setAlias('bernard.driver', 'bernard.ironmq_driver');
+                break;
             case 'appengine':
             default:
                 throw new \RuntimeException(sprintf("The %s driver is not yet implemented", $config['driver']));

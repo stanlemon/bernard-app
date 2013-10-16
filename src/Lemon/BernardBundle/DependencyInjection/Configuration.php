@@ -31,7 +31,7 @@ class Configuration implements ConfigurationInterface
                 ->arrayNode('ironmq')
                     ->children()
                         ->scalarNode('token')->end()
-                        ->scalarNode('project')->end()
+                        ->scalarNode('project_id')->end()
                     ->end()
                 ->end()
             ->end();
