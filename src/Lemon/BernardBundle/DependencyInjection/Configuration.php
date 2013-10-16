@@ -22,14 +22,19 @@ class Configuration implements ConfigurationInterface
 
         $rootNode
             ->children()
-                ->scalarNode('driver')->defaultValue('dbal')->end()
+                ->enumNode('driver')
+                    ->values(array('dbal', 'ironmq'))
+                    ->defaultValue('dbal')
+                ->end()
                 ->scalarNode('serializer')->defaultValue('symfony')->end()
                 ->scalarNode('dbal')->defaultValue('default')->end()
+                ->arrayNode('ironmq')
+                    ->children()
+                        ->scalarNode('token')->end()
+                        ->scalarNode('project')->end()
+                    ->end()
+                ->end()
             ->end();
-
-        // Here you should define the parameters that are allowed to
-        // configure your bundle. See the documentation linked above for
-        // more information on that topic.
 
         return $treeBuilder;
     }
