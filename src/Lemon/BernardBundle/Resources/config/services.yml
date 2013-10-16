@@ -26,7 +26,8 @@ services:
         arguments: [@bernard.driver, @bernard.serializer]
 
     bernard.router:
-        class: Bernard\Router\SimpleRouter
+        class: Bernard\Symfony\ContainerAwareRouter
+        arguments: [@service_container]
 
     bernard.driver:
         alias: bernard.doctrine_driver

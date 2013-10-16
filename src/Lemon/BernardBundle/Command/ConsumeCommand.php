@@ -50,7 +50,7 @@ class ConsumeCommand extends ContainerAwareCommand
 
             // See: http://symfony.com/blog/new-in-symfony-2-2-process-component-enhancements
             while (count($processes) > 0) {
-                 foreach ($processes as $nam => $process) {
+                 foreach ($processes as $name => $process) {
                      if (!$process->isStarted()) {
                          $this->getContainer()->get('logger')->debug(sprintf("Starting %s", $name));
                          $process->start();
@@ -71,7 +71,7 @@ class ConsumeCommand extends ContainerAwareCommand
 
                      if (!$process->isRunning()) {
                          $this->getContainer()->get('logger')->debug(sprintf("Stopping %s", $name));
-                         unset($processes[$i]);
+                         unset($processes[$name]);
                      }
                  }
 

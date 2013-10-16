@@ -24,9 +24,9 @@ class MessageServiceCompilerPass implements CompilerPassInterface
 
             $reflection = new \ReflectionClass($service->getClass());
 
-            $receivers[$reflection->getShortName()] = new Reference($id);
+            $receivers[$reflection->getShortName()] = $id;
         }
 
-        $definition->setArguments(array($receivers));
+        $definition->addArgument($receivers);
     }
 }
