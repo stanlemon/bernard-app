@@ -39,6 +39,19 @@ class LemonBernardExtension extends Extension
                 $container->setAlias('bernard.driver', 'bernard.doctrine_driver');
                 break;
             case 'sqs':
+                $sqs = new Definition('Aws\Sqs\SqsClient');
+                $sqs->setFactoryClass('Aws\Sqs\SqsClient');
+                $sqs->setFactoryMethod('factory');
+                $sqs->setArguments(array(array(
+                    'key'      => $config['sqs']['key'],
+                    'secret'   => $config['sqs']['secret'],
+                    'region'   => $config['sqs']['region'],
+                )));
+
+                $container->setDefinition('bernard.sqs', $sqs);
+
+                $container->setAlias('bernard.driver', 'bernard.sqs_driver');
+                break;
             case 'redis':
             case 'predis':
             case 'ironmq':

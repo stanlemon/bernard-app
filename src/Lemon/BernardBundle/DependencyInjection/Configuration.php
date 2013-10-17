@@ -23,7 +23,7 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->enumNode('driver')
-                    ->values(array('dbal', 'ironmq'))
+                    ->values(array('dbal', 'ironmq', 'sqs'))
                     ->defaultValue('dbal')
                 ->end()
                 ->scalarNode('serializer')->defaultValue('symfony')->end()
@@ -32,6 +32,13 @@ class Configuration implements ConfigurationInterface
                     ->children()
                         ->scalarNode('token')->end()
                         ->scalarNode('project_id')->end()
+                    ->end()
+                ->end()
+                ->arrayNode('sqs')
+                    ->children()
+                        ->scalarNode('key')->end()
+                        ->scalarNode('secret')->end()
+                        ->scalarNode('region')->defaultValue('us-east-1')->end()
                     ->end()
                 ->end()
             ->end();

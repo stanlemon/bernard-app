@@ -29,9 +29,19 @@ services:
         class: Bernard\Symfony\ContainerAwareRouter
         arguments: [@service_container]
 
+    bernard.ironmq:
+        class: IronMQ
+
     bernard.ironmq_driver:
         class: Bernard\Driver\IronMqDriver
         arguments: [@bernard.ironmq]
+
+    bernard.sqs:
+        class: Aws\Sqs\SqsClient
+
+    bernard.sqs_driver:
+        class: Bernard\Driver\SqsDriver
+        arguments: [@bernard.sqs]
 
     bernard.doctrine_driver:
         class: Bernard\Driver\DoctrineDriver
