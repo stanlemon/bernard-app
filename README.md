@@ -29,6 +29,9 @@ Or instead of proxying the console command we can send it raw:
 
 Todos:
 -------------
-- [ ] Make bernard's driver configurable
-- [ ] Add example for producing from a controller
+- [ ] Add support for Redis and Predis
+- [ ] Figure out a better way of creating receiver names
+- [ ] Create way of defaulting the queue name to be used
+- [ ] Investigate Google AppEngine Push Queue - likely involve stock controllers for message execution
+- [ ] Is it possible to use IronMQ Push Queues?
 - [ ] Test!
