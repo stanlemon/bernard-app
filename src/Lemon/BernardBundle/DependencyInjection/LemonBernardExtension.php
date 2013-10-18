@@ -53,7 +53,27 @@ class LemonBernardExtension extends Extension
                 $container->setAlias('bernard.driver', 'bernard.sqs_driver');
                 break;
             case 'redis':
+                $redis = new Definition('Redis');
+                $redis->addMethodCall('connect', array($config['redis']['host'], $config['redis']['port']));
+                $redis->addMethodCall('setOption', array(2, 'bernard:'));
+
+                $container->setDefinition('bernard.redis', $redis);
+
+                $container->setAlias('bernard.driver', 'bernard.redis_driver');
+                break;
             case 'predis':
+                $predis = new Definition('Predis\Client');
+                $predis->setArguments(array(
+                    $config['predis']['dsn'],
+                    array(
+                        'prefix' => 'bernard:',
+                    )
+                ));
+
+                $container->setDefinition('bernard.predis', $predis);
+
+                $container->setAlias('bernard.driver', 'bernard.predis_driver');
+                break;
             case 'ironmq':
                 $ironmq = new Definition('IronMQ');
                 $ironmq->setArguments(array(array(

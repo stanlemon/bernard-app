@@ -43,6 +43,20 @@ services:
         class: Bernard\Driver\SqsDriver
         arguments: [@bernard.sqs]
 
+    bernard.redis:
+        class: Redis
+
+    bernard.redis_driver:
+        class: Bernard\Driver\PhpRedisDriver
+        arguments: [@bernard.redis]
+
+    bernard.predis:
+        class: Predis\Client
+
+    bernard.predis_driver:
+        class: Bernard\Driver\PredisDriver
+        arguments: [@bernard.predis]
+
     bernard.doctrine_driver:
         class: Bernard\Driver\DoctrineDriver
         arguments: [@doctrine.dbal.default_connection]

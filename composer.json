@@ -22,7 +22,8 @@
 
         "bernard/bernard": "0.11.*@dev",
         "iron-io/iron_mq": "~1.4",
-        "aws/aws-sdk-php" : "~2.4"
+        "aws/aws-sdk-php" : "~2.4",
+        "predis/predis" : "~0.8"
     },
     "scripts": {
         "post-install-cmd": [
