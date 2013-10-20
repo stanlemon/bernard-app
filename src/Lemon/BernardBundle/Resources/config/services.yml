@@ -15,6 +15,9 @@ parameters:
     bernard.predis_driver.class: Bernard\Driver\PredisDriver
     bernard.doctrine_driver.class: Bernard\Driver\DoctrineDriver
     bernard.consumer_middleware.class: Bernard\Middleware\MiddlewareBuilder
+    bernard.consumer_middleware.error_log.class: Bernard\Middleware\ErrorLogFactory
+    bernard.consumer_middleware.failures.class: Bernard\Middleware\FailuresFactory
+    bernard.consumer_middleware.logger.class: Bernard\Middleware\LoggerFactory
     bernard.producer_middleware.class: Bernard\Middleware\MiddlewareBuilder
     bernard.simple_serializer.class: Bernard\Serializer\SimpleSerializer
     bernard.symfony_serializer.class: Bernard\Serializer\SymfonySerializer
@@ -88,6 +91,18 @@ services:
 
     bernard.consumer_middleware:
         class: %bernard.consumer_middleware.class%
+        calls:
+            - [ push , [@bernard.consumer_middleware.error_log] ]
+            - [ push , [@bernard.consumer_middleware.failures] ]
+            - [ push , [@bernard.consumer_middleware.logger] ]
+    bernard.consumer_middleware.error_log:
+        class: %bernard.consumer_middleware.error_log.class%
+    bernard.consumer_middleware.failures:
+        class: %bernard.consumer_middleware.failures.class%
+        arguments: [@bernard.queue_factory]
+    bernard.consumer_middleware.logger:
+        class: %bernard.consumer_middleware.logger.class%
+        arguments: [@logger]
 
     bernard.producer_middleware:
         class: %bernard.producer_middleware.class%
