@@ -22,7 +22,11 @@ class MessageServiceCompilerPass implements CompilerPassInterface
         foreach ($taggedServices as $id => $attributes) {
             $service = $container->getDefinition($id);
 
-            $reflection = new \ReflectionClass($service->getClass());
+            if (!class_exists($className = $service->getClass())) {
+                $className = $container->getParameterBag()->resolveValue($service->getClass());
+            }
+
+            $reflection = new \ReflectionClass($className);
 
             $receivers[$reflection->getShortName()] = $id;
         }

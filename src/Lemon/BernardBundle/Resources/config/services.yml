@@ -1,7 +1,32 @@
+parameters:
+    bernard.lemon.command_message_handler.class: Lemon\BernardBundle\Message\CommandMessageHandler
+    bernard.lemon.echo_message_handler.class: Lemon\BernardBundle\Message\EchoMessageHandler
+    bernard.consumer.class: Bernard\Consumer
+    bernard.producer.class: Bernard\Producer
+    bernard.queue_factory.class: Bernard\QueueFactory\PersistentFactory
+    bernard.router.class: Bernard\Symfony\ContainerAwareRouter
+    bernard.ironmq.class: IronMQ
+    bernard.ironmq_driver.class: Bernard\Driver\IronMqDriver
+    bernard.sqs.class: Aws\Sqs\SqsClient
+    bernard.sqs_driver.class: Bernard\Driver\SqsDriver
+    bernard.redis.class: Redis
+    bernard.redis_driver.class: Bernard\Driver\PhpRedisDriver
+    bernard.predis.class: Predis\Client
+    bernard.predis_driver.class: Bernard\Driver\PredisDriver
+    bernard.doctrine_driver.class: Bernard\Driver\DoctrineDriver
+    bernard.consumer_middleware.class: Bernard\Middleware\MiddlewareBuilder
+    bernard.producer_middleware.class: Bernard\Middleware\MiddlewareBuilder
+    bernard.simple_serializer.class: Bernard\Serializer\SimpleSerializer
+    bernard.symfony_serializer.class: Bernard\Serializer\SymfonySerializer
+    bernard.symfony_serializer_serializer.class: Symfony\Component\Serializer\Serializer
+    bernard.symfony_serializer.default_message.normalizer.class: Bernard\Symfony\DefaultMessageNormalizer
+    bernard.symfony_serializer.envelope.normalizer.class: Bernard\Symfony\EnvelopeNormalizer
+    bernard.symfony_serializer.encoder.json.class: Symfony\Component\Serializer\Encoder\JsonEncoder
+
 services:
 
     bernard.lemon.command_message_handler:
-        class: Lemon\BernardBundle\Message\CommandMessageHandler
+        class: %bernard.lemon.command_message_handler.class%
         calls:
             - [ setKernel, ["@kernel"] ]
             - [ setLogger, ["@logger"] ]
@@ -9,78 +34,78 @@ services:
             - { name: bernard.receiver }
 
     bernard.lemon.echo_message_handler:
-        class: Lemon\BernardBundle\Message\EchoMessageHandler
+        class: %bernard.lemon.echo_message_handler.class%
         tags:
             - { name: bernard.receiver }
 
     bernard.consumer:
-        class: Bernard\Consumer
+        class: %bernard.consumer.class%
         arguments: [@bernard.router, @bernard.consumer_middleware]
 
     bernard.producer:
-        class: Bernard\Producer
+        class: %bernard.producer.class%
         arguments: [@bernard.queue_factory, @bernard.producer_middleware]
 
     bernard.queue_factory:
-        class: Bernard\QueueFactory\PersistentFactory
+        class: %bernard.queue_factory.class%
         arguments: [@bernard.driver, @bernard.serializer]
 
     bernard.router:
-        class: Bernard\Symfony\ContainerAwareRouter
+        class: %bernard.router.class%
         arguments: [@service_container]
 
     bernard.ironmq:
-        class: IronMQ
+        class: %bernard.ironmq.class%
 
     bernard.ironmq_driver:
-        class: Bernard\Driver\IronMqDriver
+        class: %bernard.ironmq_driver.class%
         arguments: [@bernard.ironmq]
 
     bernard.sqs:
-        class: Aws\Sqs\SqsClient
+        class: %bernard.sqs.class%
 
     bernard.sqs_driver:
-        class: Bernard\Driver\SqsDriver
+        class: %bernard.sqs_driver.class%
         arguments: [@bernard.sqs]
 
     bernard.redis:
-        class: Redis
+        class: %bernard.redis.class%
 
     bernard.redis_driver:
-        class: Bernard\Driver\PhpRedisDriver
+        class: %bernard.redis_driver.class%
         arguments: [@bernard.redis]
 
     bernard.predis:
-        class: Predis\Client
+        class: %bernard.predis.class%
 
     bernard.predis_driver:
-        class: Bernard\Driver\PredisDriver
+        class: %bernard.predis_driver.class%
         arguments: [@bernard.predis]
 
     bernard.doctrine_driver:
-        class: Bernard\Driver\DoctrineDriver
+        class: %bernard.doctrine_driver.class%
         arguments: [@doctrine.dbal.default_connection]
 
     bernard.consumer_middleware:
-        class: Bernard\Middleware\MiddlewareBuilder
+        class: %bernard.consumer_middleware.class%
 
     bernard.producer_middleware:
-        class: Bernard\Middleware\MiddlewareBuilder
+        class: %bernard.producer_middleware.class%
 
     bernard.simple_serializer:
-        class: Bernard\Serializer\SimpleSerializer
+        class: %bernard.simple_serializer.class%
 
     bernard.symfony_serializer:
-        class: Bernard\Serializer\SymfonySerializer
+        class: %bernard.symfony_serializer.class%
         arguments: [@bernard.symfony_serializer_serializer]
     bernard.symfony_serializer_serializer:
-        class: Symfony\Component\Serializer\Serializer
+        class: %bernard.symfony_serializer_serializer.class%
         arguments:
             - [ @bernard.symfony_serializer.default_message.normalizer , @bernard.symfony_serializer.envelope.normalizer ]
             - { json: @bernard.symfony_serializer.encoder.json }
     bernard.symfony_serializer.default_message.normalizer:
-        class: Bernard\Symfony\DefaultMessageNormalizer
+        class: %bernard.symfony_serializer.default_message.normalizer.class%
     bernard.symfony_serializer.envelope.normalizer:
-        class: Bernard\Symfony\EnvelopeNormalizer
+        class: %bernard.symfony_serializer.envelope.normalizer.class%
     bernard.symfony_serializer.encoder.json:
-        class: Symfony\Component\Serializer\Encoder\JsonEncoder
+        class: %bernard.symfony_serializer.encoder.json.class%
